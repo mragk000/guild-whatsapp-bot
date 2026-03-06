@@ -21,13 +21,10 @@ let leaderboardText = `🏆 GUILD GLORY LEADERBOARD
 
 // send message and delete after 24 hours
 async function sendTemporaryMessage(sock, chatId, text, mentions = []) {
-
 const sentMsg = await sock.sendMessage(chatId, { text, mentions })
 
 setTimeout(async () => {
-
 try {
-
 await sock.sendMessage(chatId, {
 delete: {
 remoteJid: chatId,
@@ -36,13 +33,10 @@ id: sentMsg.key.id,
 participant: sentMsg.key.participant
 }
 })
-
 } catch (err) {
 console.log("Delete failed:", err)
 }
-
 }, 86400000)
-
 }
 
 async function startBot() {
@@ -56,7 +50,8 @@ const sock = makeWASocket({
 auth: state,
 logger: P({ level: "silent" }),
 version,
-browser: ["GuildBot","Chrome","1.0"]
+browser: ["GuildBot","Chrome","1.0"],
+printQRInTerminal: true
 })
 
 /* CONNECTION */
@@ -66,8 +61,18 @@ sock.ev.on("connection.update", (update) => {
 const { connection, qr, lastDisconnect } = update
 
 if (qr) {
-console.log("📱 Scan this QR with WhatsApp")
+
+console.log("\n📱 Scan this QR with WhatsApp\n")
+
+// terminal QR
 qrcode.generate(qr, { small: true })
+
+// backup QR image link
+const qrLink = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(qr)}`
+console.log("\nIf QR looks broken open this link:")
+console.log(qrLink)
+console.log("\nWaiting for scan...\n")
+
 }
 
 if (connection === "open") {
@@ -124,7 +129,6 @@ update.id,
 
 ⚔️ Please read the rules.
 Type:
-
 !rules
 
 Stay active and help the guild!`,
@@ -192,7 +196,6 @@ if (command === "!warn") {
 
 let number = args[0]
 let reason = args.slice(1).join(" ")
-
 let jid = number + "@s.whatsapp.net"
 
 await sock.sendMessage(GUILD_GROUP_ID, {
@@ -241,9 +244,7 @@ await sendTemporaryMessage(sock, chatId,
 
 // LEADERBOARD
 if (command === "!leaderboard") {
-
 await sendTemporaryMessage(sock, chatId, leaderboardText)
-
 }
 
 // MENU
@@ -274,7 +275,6 @@ Reminder sent at 4PM`
 if (command === "!tagall") {
 
 const metadata = await sock.groupMetadata(chatId)
-
 const participants = metadata.participants
 
 let users = participants.map(p => p.id)
