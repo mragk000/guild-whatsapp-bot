@@ -1,4 +1,4 @@
-const { default: makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason } = require("baileys")
+const { default: makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason } = require("@whiskeysockets/baileys")
 const qrcode = require("qrcode-terminal")
 const P = require("pino")
 const cron = require("node-cron")
@@ -19,7 +19,6 @@ let leaderboardText = `🏆 GUILD GLORY LEADERBOARD
 4️⃣ ＩＦＣㅤAASHIQ — 15584
 5️⃣ ＩＦＣㅤERNESTO APPU — 10604`
 
-
 // send message and delete after 24 hours
 async function sendTemporaryMessage(sock, chatId, text, mentions = []) {
 
@@ -39,42 +38,36 @@ participant: sentMsg.key.participant
 })
 
 } catch (err) {
-
 console.log("Delete failed:", err)
-
 }
 
 }, 86400000)
 
 }
 
-
 async function startBot() {
 
 console.log("🚀 Starting Guild Bot...")
 
 const { state, saveCreds } = await useMultiFileAuthState("./auth")
-
 const { version } = await fetchLatestBaileysVersion()
 
 const sock = makeWASocket({
 auth: state,
 logger: P({ level: "silent" }),
 version,
-browser: ["Windows","Chrome","120.0"]
+browser: ["GuildBot","Chrome","1.0"]
 })
 
+/* CONNECTION */
 
-// CONNECTION
 sock.ev.on("connection.update", (update) => {
 
 const { connection, qr, lastDisconnect } = update
 
 if (qr) {
-
-console.log("📱 Scan QR Code")
+console.log("📱 Scan this QR with WhatsApp")
 qrcode.generate(qr, { small: true })
-
 }
 
 if (connection === "open") {
@@ -104,10 +97,8 @@ if (connection === "close") {
 const reason = lastDisconnect?.error?.output?.statusCode
 
 if (reason !== DisconnectReason.loggedOut) {
-
-console.log("Restarting bot...")
+console.log("🔄 Restarting bot...")
 startBot()
-
 }
 
 }
@@ -116,8 +107,8 @@ startBot()
 
 sock.ev.on("creds.update", saveCreds)
 
+/* WELCOME NEW MEMBERS */
 
-// WELCOME NEW MEMBERS
 sock.ev.on("group-participants.update", async (update) => {
 
 if (update.id !== GUILD_GROUP_ID) return
@@ -133,6 +124,7 @@ update.id,
 
 ⚔️ Please read the rules.
 Type:
+
 !rules
 
 Stay active and help the guild!`,
@@ -143,12 +135,11 @@ Stay active and help the guild!`,
 
 })
 
+/* MESSAGE HANDLER */
 
-// MESSAGE HANDLER
 sock.ev.on("messages.upsert", async ({ messages }) => {
 
 const msg = messages[0]
-
 if (!msg.message) return
 
 const chatId = msg.key.remoteJid
@@ -163,10 +154,7 @@ if (!text) return
 const command = text.split(" ")[0].toLowerCase()
 const args = text.split(" ").slice(1)
 
-
-// =======================
-// ADMIN PRIVATE COMMANDS
-// =======================
+/* ADMIN PRIVATE COMMANDS */
 
 if (!chatId.endsWith("@g.us") && ADMINS.includes(sender)) {
 
@@ -230,13 +218,9 @@ return
 
 }
 
-
-// =======================
-// GROUP COMMANDS
-// =======================
+/* GROUP COMMANDS */
 
 if (chatId !== GUILD_GROUP_ID) return
-
 
 // RULES
 if (command === "!rules") {
@@ -255,14 +239,12 @@ await sendTemporaryMessage(sock, chatId,
 
 }
 
-
 // LEADERBOARD
 if (command === "!leaderboard") {
 
 await sendTemporaryMessage(sock, chatId, leaderboardText)
 
 }
-
 
 // MENU
 if (command === "!menu") {
@@ -287,7 +269,6 @@ Reminder sent at 4PM`
 )
 
 }
-
 
 // TAG ALL
 if (command === "!tagall") {
