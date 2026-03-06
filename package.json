@@ -1,20 +1,15 @@
 {
-  "name": "whatsapp-guild-bot",
+  "name": "guild-bot",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "main": "bot.js",
   "type": "commonjs",
-  "dependencies": {
-    "@whiskeysockets/baileys": "^7.0.0-rc.9",
-    "baileys": "^7.0.0-rc.9",
-    "node-cron": "^4.2.1",
-    "pino": "^10.3.1",
-    "qrcode-terminal": "^0.12.0"
+  "scripts": {
+    "start": "node bot.js"
   },
-  "description": ""
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.0",
+    "node-cron": "^3.0.3",
+    "pino": "^8.17.0",
+    "qrcode-terminal": "^0.12.0"
+  }
 }
